@@ -9,9 +9,31 @@ import * as auth from "../Auth";
 import InputField from "./components/inputField";
 
 function PersonaInformation(props) {
+  const [statea, setstate] = useState([]);
+  const imag = `https://quiet-dusk-10883.herokuapp.com/static`;
+  useEffect(()=>{
+        async function getData(){
+        const data = {
+            _id:"607800ccdcf88300154e9031",
+        }
+      const userData = {
+        method:'POST',
+        headers:{
+            'Content-Type':'application/json'
+        },
+        body:JSON.stringify(data)
+      }
+      const res = await fetch('https://quiet-dusk-10883.herokuapp.com/userProfile/readUserData', userData);
+      const json = await res.json();
+        //console.log(json.data.[0]);
+        setstate(json.data.[0]);
+      }
+      getData();
+    },[])
   // Fields
   const [loading, setloading] = useState(false);
   const [pic, setPic] = useState("");
+  const [profileImage, setprofileImage] = useState("");
   const dispatch = useDispatch();
   const user = useSelector((state) => state.auth.user, shallowEqual);
   useEffect(() => {
@@ -28,38 +50,30 @@ function PersonaInformation(props) {
     setTimeout(() => {
       setloading(false);
       setSubmitting(false);
-      // Do request to your server for user update, we just imitate user update there, For example:
-      // update(updatedUser)
-      //  .then(()) => {
-      //    setloading(false);
-      //  })
-      //  .catch((error) => {
-      //    setloading(false);
-      //    setSubmitting(false);
-      //    setStatus(error);
-      // });
     }, 1000);
   };
   // UI Helpers
   const initialValues = {
-    pic: user.pic,
-    firstname: user.firstname,
-    lastname: user.lastname,
-    companyName: user.companyName,
-    phone: user.phone,
-    email: user.email,
-    website: user.website,
+    profileImage: "",
+    Name: statea.Name,
+    //lastname: user.lastname,
+    // companyName: user.companyName,
+    phone: "",
+    email: "",
+    password: "",
+    //website: user.website,
   };
   const Schema = Yup.object().shape({
-    pic: Yup.string(),
-    firstname: Yup.string().required("First name is required"),
-    lastname: Yup.string().required("Last name is required"),
-    companyName: Yup.string(),
+    profileImage: Yup.string(),
+    Name: Yup.string().required("Your Name is required"),
+//    lastname: Yup.string().required("Last name is required"),
+//    companyName: Yup.string(),
     phone: Yup.string().required("Phone is required"),
     email: Yup.string()
       .email("Wrong email format")
       .required("Email is required"),
-    website: Yup.string(),
+    password: Yup.string().required("Enter Your password for Changes"),  
+//    website: Yup.string(),
   });
   const getInputClasses = (fieldname) => {
     if (formik.touched[fieldname] && formik.errors[fieldname]) {
@@ -76,6 +90,30 @@ function PersonaInformation(props) {
     initialValues,
     validationSchema: Schema,
     onSubmit: (values, { setStatus, setSubmitting }) => {
+      //console.log(values);
+      async function gotData(){
+        const data = {
+                _id:"607800ccdcf88300154e9031",
+                Name: values.Name,
+                Email: values.email,
+                password: values.password,
+                Mobnumber: values.phone,
+                profileImage:values.profileImage
+              }
+              console.log(data)
+            const TaskChecked = {
+              method:'POST',
+              headers:{
+                  'Content-Type':'application/json'
+              },
+              body:JSON.stringify(data)
+            }
+            const res = await fetch('https://quiet-dusk-10883.herokuapp.com/userProfile/ProfieUpDate', TaskChecked);
+            const json = await res.json();
+            console.log(json);
+          }
+            gotData();
+
       saveUser(values, setStatus, setSubmitting);
     },
     onReset: (values, { resetForm }) => {
@@ -83,14 +121,14 @@ function PersonaInformation(props) {
     },
   });
   const getUserPic = () => {
-    if (!pic) {
+    if (!profileImage) {
       return "none";
     }
 
-    return `url(${pic})`;
+    return `url(${profileImage})`;
   };
   const removePic = () => {
-    setPic("");
+    setprofileImage("");
   };
   return (
     <form
@@ -135,10 +173,6 @@ function PersonaInformation(props) {
         {/* begin::Body */}
         <div className="card-body">
           <div className="row">
-            <label className="col-xl-3"></label>
-            <div className="col-lg-9 col-xl-6">
-              <h5 className="font-weight-bold mb-6">Customer Info</h5>
-            </div>
           </div>
           <div className="form-group row">
             <label className="col-xl-3 col-lg-3 col-form-label">Avatar</label>
@@ -166,9 +200,9 @@ function PersonaInformation(props) {
                   <i className="fa fa-pen icon-sm text-muted"></i>
                   <input
                     type="file"
-                    // name="pic"
+                     name="profileImage"
                     accept=".png, .jpg, .jpeg"
-                    // {...formik.getFieldProps("pic")}
+                     {...formik.getFieldProps("profileImage")}
                   />
                   <input type="hidden" name="profile_avatar_remove" />
                 </label>
@@ -202,22 +236,10 @@ function PersonaInformation(props) {
         {/*Field fr taking input*/}
           
           <InputField 
-            lableName = "firstname" 
+            lableName = "Name" 
             getInputHere = {getInputClasses} 
             formHandlemik = {formik}
-            DisplayName = {{...formik.getFieldProps("firstname")}}/>
-
-          <InputField 
-            lableName = "lastname" 
-            getInputHere = {getInputClasses} 
-            formHandlemik = {formik}
-            DisplayName = {{...formik.getFieldProps("lastname")}}/>
-            
-          <InputField 
-            lableName = "companyName" 
-            getInputHere = {getInputClasses} 
-            formHandlemik = {formik}
-            DisplayName = {{...formik.getFieldProps("companyName")}}/>
+            DisplayName = {{...formik.getFieldProps("Name")}}/>
             
           <InputField 
             lableName = "phone" 
@@ -226,11 +248,16 @@ function PersonaInformation(props) {
             DisplayName = {{...formik.getFieldProps("phone")}}/>
 
           <InputField 
-            lableName = "website" 
+            lableName = "email" 
             getInputHere = {getInputClasses} 
             formHandlemik = {formik}
-            DisplayName = {{...formik.getFieldProps("website")}}/>    
-          
+            DisplayName = {{...formik.getFieldProps("email")}}/> 
+
+          <InputField 
+            lableName = "password" 
+            getInputHere = {getInputClasses} 
+            formHandlemik = {formik}
+            DisplayName = {{...formik.getFieldProps("password")}}/>
          
         
         </div>

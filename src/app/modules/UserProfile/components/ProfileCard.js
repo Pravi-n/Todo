@@ -1,16 +1,32 @@
-/* eslint-disable jsx-a11y/anchor-is-valid */
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { NavLink } from "react-router-dom";
 import { shallowEqual, useSelector } from "react-redux";
-//import { Dropdown, OverlayTrigger, Tooltip } from "react-bootstrap";
-//import { Dropdown } from "react-bootstrap";
 import SVG from "react-inlinesvg";
 import { toAbsoluteUrl } from "../../../../_metronic/_helpers";
-//import { DropdownCustomToggler, DropdownMenu4} from "../../../../_metronic/_partials/dropdowns";
 
 export function ProfileCard() {
   const user = useSelector(({ auth }) => auth.user, shallowEqual);
-
+  const [state, setstate] = useState("");
+  const imag = `https://quiet-dusk-10883.herokuapp.com/static`;
+  useEffect(()=>{
+        async function getData(){
+        const data = {
+            _id:"607800ccdcf88300154e9031",
+        }
+      const userData = {
+        method:'POST',
+        headers:{
+            'Content-Type':'application/json'
+        },
+        body:JSON.stringify(data)
+      }
+      const res = await fetch('https://quiet-dusk-10883.herokuapp.com/userProfile/readUserData', userData);
+      const json = await res.json();
+        console.log(json.data.[0]);
+        setstate(json.data.[0]);
+      }
+      getData();
+    },[])
   useEffect(() => {
     return () => {};
   }, [user]);
@@ -25,8 +41,7 @@ export function ProfileCard() {
           <div className="card card-custom card-stretch">
             {/* begin::Body */}
             <div className="card-body pt-4">
-              {/* begin::Toolbar */}
-              {/* end::Toolbar */}
+
               {/* begin::User */}
               <div className="d-flex align-items-center">
                 <div className="symbol symbol-60 symbol-xxl-100 mr-5 align-self-start align-self-xxl-center">
@@ -34,8 +49,7 @@ export function ProfileCard() {
                     className="symbol-label"
                     style={{ backgroundImage: `url(${user.pic})` }}
                   ></div>
-                  {/* style="background-i
-                  mage:url('/metronic/theme/html/demo1/dist/assets/media/users/300_21.jpg')" */}
+                  
                   <i className="symbol-badge bg-success"></i>
                 </div>
                 <div>
@@ -43,29 +57,27 @@ export function ProfileCard() {
                     href="#"
                     className="font-weight-bolder font-size-h5 text-dark-75 text-hover-primary"
                   >
-                    {user.firstname} {user.lastname}
+                    {state.Name}
                   </a>
-                  <div className="text-muted">{user.occupation}</div>
+                  <div className="text-muted">{state.occupation}</div>
                   
                 </div>
               </div>
               {/* end::User */}
+
               {/* begin::Contact */}
               <div className="py-9">
                 <div className="d-flex align-items-center justify-content-between mb-2">
                   <span className="font-weight-bold mr-2">Email:</span>
                   <span className="text-muted text-hover-primary">
-                    {user.email}
+                    {state.Email}
                   </span>
                 </div>
                 <div className="d-flex align-items-center justify-content-between mb-2">
                   <span className="font-weight-bold mr-2">Phone:</span>
-                  <span className="text-muted">{user.phone}</span>
+                  <span className="text-muted">{state.Mobnumber}</span>
                 </div>
-                <div className="d-flex align-items-center justify-content-between">
-                  <span className="font-weight-bold mr-2">Location:</span>
-                  <span className="text-muted">{user.address.city}</span>
-                </div>
+                
               </div>
               {/* end::Contact */}
 
@@ -115,31 +127,7 @@ export function ProfileCard() {
                   </NavLink>
                 </div>
 
-                <div className="navi-item mb-2">
-                  <NavLink
-                    to="/user-profile/change-password"
-                    className="navi-link py-4"
-                    activeClassName="active"
-                  >
-                    <span className="navi-icon mr-2">
-                      <span className="svg-icon">
-                        <SVG
-                          src={toAbsoluteUrl(
-                            "/media/svg/icons/Communication/Shield-user.svg"
-                          )}
-                        ></SVG>{" "}
-                      </span>
-                    </span>
-                    <span className="navi-text font-size-lg">
-                      Change Password
-                    </span>
-                    <span className="navi-label">
-                      <span className="label label-light-danger label-rounded font-weight-bold">
-                        5
-                      </span>
-                    </span>
-                  </NavLink>
-                </div>
+                
                 
 
 
@@ -153,3 +141,4 @@ export function ProfileCard() {
     </>
   );
 }
+

@@ -1,6 +1,8 @@
 import React from 'react';
 import {Button, Card, Accordion} from "react-bootstrap";
-const Accordian = () => {
+const Accordian = (props) => {
+  //const temp = props.msg;
+ // console.log("props",props.msg.data.UserId);
     return ( 
         <Accordion defaultActiveKey="0">
   <Card style={{margin:'5px',border:'2px solid green', borderRadius:'5px'}}>
@@ -11,7 +13,7 @@ const Accordian = () => {
     </Card.Header>
     <Accordion.Collapse eventKey="1">
       <Card.Body>
-        fdnjdfnfdffbdffeffadnsdhsdfhasjfnskjdffnsakjfbsfdsashfsahfgsfhhsafashdjasdhasj
+        {props.msg.data.Morning_Log}
       </Card.Body>
     </Accordion.Collapse>
   </Card>
@@ -22,7 +24,7 @@ const Accordian = () => {
       </Accordion.Toggle>
     </Card.Header>
     <Accordion.Collapse eventKey="2">
-      <Card.Body>Hello! I'm another body</Card.Body>
+      <Card.Body>{props.msg.data.Afternoon_Log}</Card.Body>
     </Accordion.Collapse>
   </Card>
   <Card style={{margin:'5px',border:'2px solid green', borderRadius:'5px'}}>
@@ -32,7 +34,7 @@ const Accordian = () => {
       </Accordion.Toggle>
     </Card.Header>
     <Accordion.Collapse eventKey="3">
-      <Card.Body>Hello! I'm another body</Card.Body>
+      <Card.Body>{props.msg.data.Achievements}</Card.Body>
     </Accordion.Collapse>
   </Card>
 </Accordion>

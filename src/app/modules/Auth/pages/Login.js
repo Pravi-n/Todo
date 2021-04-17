@@ -23,6 +23,7 @@ const initialValues = {
 };
 
 function Login(props) {
+  //const [statea, setstate] = useState([]);
   const { intl } = props;
   const [loading, setLoading] = useState(false);
   const LoginSchema = Yup.object().shape({
@@ -69,6 +70,25 @@ function Login(props) {
     initialValues,
     validationSchema: LoginSchema,
     onSubmit: (values, { setStatus, setSubmitting }) => {
+      //console.log(values)
+      // async function getData(){
+      //     const data = {
+      //        Email: values.email,
+      //        password: values.password,
+      //     }
+      //   const userData = {
+      //     method:'POST',
+      //     headers:{
+      //         'Content-Type':'application/json'
+      //     },
+      //     body:JSON.stringify(data)
+      //   }
+      //   const res = await fetch('https://quiet-dusk-10883.herokuapp.com/userProfile/LogIN', userData);
+      //   const json = await res.json();
+      //     //console.log(json.data.[0]);
+      //     setstate(json.data);
+      // }
+      // getData();
       enableLoading();
       setTimeout(() => {
         login(values.email, values.password)

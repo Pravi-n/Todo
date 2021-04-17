@@ -1,8 +1,10 @@
 import React from "react";
 import { AdvanceTablesWidget7, ListsWidget10, ListsWidget14 } from '../../../_metronic/_partials/widgets';
 // import { toAbsoluteUrl } from "../../../_metronic/_helpers";
-
+//import axios from 'axios';
 export function ProfileOverview() {
+      
+    
   return (
     <div className="row">
       <div className="col-lg-6">

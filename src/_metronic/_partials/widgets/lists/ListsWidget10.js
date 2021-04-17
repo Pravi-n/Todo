@@ -1,21 +1,31 @@
 /* eslint-disable no-script-url,jsx-a11y/anchor-is-valid */
-import React from "react";
+import React,{  useState, useEffect } from "react";
 //Simport { Dropdown } from "react-bootstrap";
 //import { DropdownCustomToggler, DropdownMenu3 } from "../../dropdowns";
 //import data from "./ListsWidget14";
 
 export function ListsWidget10({ className }) {
-  const app = [{
-    id:1,
-    TaskName: "Daliy standUp meeting",
-    Description:"this meeting is for Tejas and team",
-    prority:4,
-  },{
-    id:2,
-    TaskName: "UserProfile Complete",
-    Description:"user Data and there information need ",
-    prority:2,
-  }]
+    const [state, setstate] = useState([]);
+    useEffect(()=>{
+        async function getData(){
+        const data = {
+          User_ID:121213
+        }
+        const Checked = {
+          method:'POST',
+          headers:{
+              'Content-Type':'application/json'
+          },
+          body:JSON.stringify(data)
+        }
+        const res = await fetch('https://quiet-dusk-10883.herokuapp.com/taskTodo/readChecked', Checked);
+        const json = await res.json();
+        console.log(json);
+        setstate(json);
+      }
+      getData();
+    },[])
+  
   return (
     <>
       <div className={`card card-custom ${className}`}>
@@ -29,10 +39,10 @@ export function ListsWidget10({ className }) {
 
         {/* Body */}
         <div className="card-body pt-0">
-          {app.map((val)=>{
+          {state.map((val)=>{
               return(
               
-              <div>
+              <div key={val._id}>
               
         
         

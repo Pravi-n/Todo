@@ -14,7 +14,7 @@ import { Logout, AuthPage } from "./modules/Auth";
 import ErrorsPage from "./modules/ErrorsExamples/ErrorsPage";
 
 export function Routes() {
-  const { isAuthorized } = useSelector(
+  const {isAuthorized } = useSelector(
     ({ auth }) => ({
       isAuthorized: auth.user != null,
     }),

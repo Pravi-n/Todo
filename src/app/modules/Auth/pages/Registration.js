@@ -2,21 +2,27 @@ import React, { useState } from "react";
 import { useFormik } from "formik";
 import { connect } from "react-redux";
 import * as Yup from "yup";
+import Select from 'react-select';
 import { Link } from "react-router-dom";
 import { FormattedMessage, injectIntl } from "react-intl";
 import * as auth from "../_redux/authRedux";
 import { register } from "../_redux/authCrud";
 
+const options = [
+  {value: 0 , label:"User"},
+  {value: 1, label:"Admin"}
+]
 const initialValues = {
   fullname: "",
   email: "", 
-  designation: "",
+  designation: 0,
   password: "",
   changepassword: "",
-  acceptTerms: false,
+  // acceptTerms: false,
 };
 
 function Registration(props) {
+   const [statea, setstate] = useState([]);
   const { intl } = props;
   const [loading, setLoading] = useState(false);
   const RegistrationSchema = Yup.object().shape({
@@ -38,8 +44,6 @@ function Registration(props) {
         })
       ),
     designation: Yup.string()
-      .min(3, "Minimum 3 symbols")
-      .max(50, "Maximum 50 symbols")
       .required(
         intl.formatMessage({
           id: "AUTH.VALIDATION.REQUIRED_FIELD",
@@ -66,9 +70,35 @@ function Registration(props) {
           "Password and Confirm Password didn't match"
         ),
       }),
-    acceptTerms: Yup.bool().required(
-      "You must accept the terms and conditions"
-    ),
+    // acceptTerms: Yup.bool().required(
+    //   "You must accept the terms and conditions"
+    // ),
+     // {/* begin: Terms and Conditions */}
+     //    <div className="form-group">
+     //      <label className="checkbox">
+     //        <input
+     //          type="checkbox"
+     //          name="acceptTerms"
+     //          className="m-1"
+     //          {...formik.getFieldProps("acceptTerms")}
+     //        />
+     //        <Link
+     //          to="/terms"
+     //          target="_blank"
+     //          className="mr-1"
+     //          rel="noopener noreferrer"
+     //        >
+     //          I agree the Terms & Conditions
+     //        </Link>
+     //        <span />
+     //      </label>
+     //      {formik.touched.acceptTerms && formik.errors.acceptTerms ? (
+     //        <div className="fv-plugins-message-container">
+     //          <div className="fv-help-block">{formik.errors.acceptTerms}</div>
+     //        </div>
+     //      ) : null}
+     //    </div>
+     //    {/* end: Terms and Conditions */}
   });
 
   const enableLoading = () => {
@@ -78,7 +108,6 @@ function Registration(props) {
   const disableLoading = () => {
     setLoading(false);
   };
-
   const getInputClasses = (fieldname) => {
     if (formik.touched[fieldname] && formik.errors[fieldname]) {
       return "is-invalid";
@@ -95,6 +124,8 @@ function Registration(props) {
     initialValues,
     validationSchema: RegistrationSchema,
     onSubmit: (values, { setStatus, setSubmitting }) => {
+      console.log(values)
+
       setSubmitting(true);
       enableLoading();
       register(values.email, values.fullname, values.designation, values.password)
@@ -179,17 +210,17 @@ function Registration(props) {
         {/* end: Email */}
 
         {/* begin: designation */}
-        <div className="form-group fv-plugins-icon-container">
-          <input
-            placeholder="Designation"
-            type="text"
-            className={`form-control form-control-solid h-auto py-5 px-6 ${getInputClasses(
-              "designation"
+          <div className="form-group fv-plugins-icon-container">
+            <Select
+              placeholder="Designation"
+              className={`form-control form-control-solid h-auto py-5 px-6 ${getInputClasses(
+              "fullname"
             )}`}
-            name="designation"
-            {...formik.getFieldProps("designation")}
-          />
-          {formik.touched.designation && formik.errors.designation ? (
+              name="designation" 
+              options={options}
+            />
+        
+        {formik.touched.designation && formik.errors.designation ? (
             <div className="fv-plugins-message-container">
               <div className="fv-help-block">{formik.errors.designation}</div>
             </div>
@@ -237,39 +268,13 @@ function Registration(props) {
         </div>
         {/* end: Confirm Password */}
 
-        {/* begin: Terms and Conditions */}
-        <div className="form-group">
-          <label className="checkbox">
-            <input
-              type="checkbox"
-              name="acceptTerms"
-              className="m-1"
-              {...formik.getFieldProps("acceptTerms")}
-            />
-            <Link
-              to="/terms"
-              target="_blank"
-              className="mr-1"
-              rel="noopener noreferrer"
-            >
-              I agree the Terms & Conditions
-            </Link>
-            <span />
-          </label>
-          {formik.touched.acceptTerms && formik.errors.acceptTerms ? (
-            <div className="fv-plugins-message-container">
-              <div className="fv-help-block">{formik.errors.acceptTerms}</div>
-            </div>
-          ) : null}
-        </div>
-        {/* end: Terms and Conditions */}
+       
         <div className="form-group d-flex flex-wrap flex-center">
           <button
             type="submit"
             disabled={
               formik.isSubmitting ||
-              !formik.isValid ||
-              !formik.values.acceptTerms
+              !formik.isValid 
             }
             className="btn btn-primary font-weight-bold px-9 py-4 my-3 mx-4"
           >

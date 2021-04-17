@@ -1,6 +1,8 @@
-import React,{  useState } from "react";
+import React,{  useState , useEffect} from "react";
+import axios from "axios";
 import {Link} from 'react-router-dom'
 import { withStyles, makeStyles } from '@material-ui/core/styles';
+import { useHistory } from "react-router-dom";
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
@@ -10,6 +12,8 @@ import Paper from '@material-ui/core/Paper';
 import Modal from '@material-ui/core/Modal';
 import {Button, Form} from "react-bootstrap";
 import TextField from '@material-ui/core/TextField';
+import { httpGet, httpPost } from "../httpService";
+const instance = axios.create();
 
 const getModelStyle = ()=>{
     const top = 50;
@@ -42,8 +46,8 @@ const StyledTableRow = withStyles(theme => ({
   },
 }))(TableRow);
 
-function createData(ProjectName, MemebersCount, DOC, PrndingTasks, CompletedTasks, status) {
-  return { ProjectName, MemebersCount, DOC, PrndingTasks, CompletedTasks, status };
+function createData(ProjectName, Description, StartDate, Status) {
+  return { ProjectName, Description, StartDate, Status };
 }
 
 const rows = [{
@@ -112,44 +116,88 @@ const useStyles = makeStyles(theme => ({
 }));
 
 export default function CustomizedTables() {
+  let history = useHistory();
   const classes = useStyles();
     const [modalStyle] = useState(getModelStyle);
-    const [taskName, settaskName] = useState("");
-    const [Description, setDescription] = useState("");
-    const [ProjectName, setProjectName] = useState("");
+    const [projectName, setprojectName] = useState("");
+    const [description, setDescription] = useState("");
+    const [projectStatus, setStatus] = useState("");
+    const [startDate, setDate] = useState("");
+    const [id, setID] = useState("");
+    const [editData, seteditData] = useState("");
     //const [posts, setPosts] = useState([]);
     const [openEdit,setEdit] = useState(false);
     const [openAdd, setOpen] = useState(false);
-    const AddProjectDetails = (e)=>{
-        sdata.push({
-          id: sdata.length +1,
-          TaskName: taskName,
-          Description: Description,
-          ProjectName:ProjectName,
-        })
+    const AddProject =async (e)=>{
+      e.preventDefault();
+      const dataToAdd={
+        projectName : projectName,
+        description : description,
+        startDate : startDate,
+        projectStatus : projectStatus,
+        teamMembers : [1,2]
+      }
+      console.log("Inside Add");
+      const data = await httpPost("https://quiet-dusk-10883.herokuapp.com/api/addProject",dataToAdd)
+      console.log(data);
         setOpen(false);
+        activateprojects();
+        history.push("/projects");
     }
 
-    const EditProjectDeatils = (e)=>{
+    const SubmitEditedProject =async (e) =>{
+      e.preventDefault();
+      console.log("inside sse",id);
+      const dataToAdd={
+        _id : id,
+        projectName : projectName,
+        description : description,
+        projectStatus : projectStatus,
+        teamMembers : [1,2]
+      }
+      console.log("Inside Edit");
+      const data = await httpPost("https://quiet-dusk-10883.herokuapp.com/api/updateProject",dataToAdd)
+      console.log(data);
         setEdit(false);
+        activateprojects();
+        history.push("/projects");
     }
-  const app = [{
-    id:1,
-    TaskName: "Daliy standUp meeting",
-    Description:"this meeting is for Tejas and team",
-    ProjectName:"Yina",
-  },{
-    id:2,
-    TaskName: "UserProfile Complete",
-    Description:"user Data and there information need ",
-    ProjectName:"Mina",
-  },{
-    id:3,
-    TaskName: "Amezon Prime",
-    Description:"we need more amezon prime membership",
-    ProjectName:"Dika",
-  }]
-  const [sdata, setsdata] = useState(app);
+  
+  const [projects, setproject] = useState([]);
+
+  useEffect(() => {
+    activateprojects();
+  }, []);
+
+  const EditProject= async obj =>{
+      setID(obj._id);
+      console.log("Edit",obj);
+      setEdit(true);
+      seteditData(obj);
+  }
+  const activateprojects =async () => {
+    console.log("Inside projects");
+    const data = await httpGet("https://quiet-dusk-10883.herokuapp.com/api/getProjects");
+    console.log('projects',data.data);
+    setproject(data.data);
+
+    // instance.get("http://localhost:3005/api/getProjects")
+    //   .then(res=>{
+    //     console.log('res ',res)
+    //   }).catch(err=>{
+    //     console.log('err',err);
+    //   })
+    //console.log(res.data);
+    //setproject(res.data);
+  };
+  //console.log(projects);
+  // const deleteproject= async id =>{
+  //     await axios.delete(`http://localhost:3003/projects/${id}`);
+  //     activateprojects();
+  // }
+  // console.log("projectsData",projects);
+  // console.log("EditData",editData.projectName);
+  //console.log("ID=".id);
   return (
       <div>
         <div>
@@ -160,12 +208,12 @@ export default function CustomizedTables() {
                             <Form className='mt-8'>
                                 <Form.Group controlId="formBasicProjectName">
                                     <Form.Label>Project Name</Form.Label>
-                                    <Form.Control onChange={(e)=> settaskName(e.target.value)} type="TaskName" placeholder="Task Name" /> 
+                                    <Form.Control onChange={(e)=> setprojectName(e.target.value)} type="TaskName" placeholder="Project Name" /> 
                                 </Form.Group>
 
-                                <Form.Group controlId="formNumberOfMembers">
-                                    <Form.Label>Number of Members</Form.Label>
-                                    <Form.Control onChange={(e)=> setProjectName(e.target.value)} type="PrpjectName" placeholder="ProjectName" /> 
+                                <Form.Group controlId="formBasicDescription">
+                                    <Form.Label>Description</Form.Label>
+                                    <Form.Control onChange={(e)=> setDescription(e.target.value)} as="textarea" rows="3" />
                                 </Form.Group>
 
                                 <Form.Group controlId="formBasicDescription">
@@ -175,6 +223,7 @@ export default function CustomizedTables() {
                                         id="date"
                                         type="date"
                                         className={classes.textField}
+                                        onChange={(e)=> setDate(e.target.value)}
                                         InputLabelProps={{
                                         shrink: true,
                                         }}
@@ -182,12 +231,12 @@ export default function CustomizedTables() {
                                     </form>
                                 </Form.Group>
 
-                                <Form.Group controlId="formBasicDescription">
-                                    <Form.Label>Description</Form.Label>
-                                    <Form.Control as="textarea" rows="3" />
+                                <Form.Group controlId="formNumberOfMembers">
+                                    <Form.Label>Status</Form.Label>
+                                    <Form.Control onChange={(e)=> setStatus(e.target.value)} type="PrpjectName" placeholder="Project Status" /> 
                                 </Form.Group>
 
-                                <Button onClick={AddProjectDetails} variant="primary" type="submit">
+                                <Button onClick={AddProject} variant="primary" type="submit">
                                   Submit
                                 </Button>
                             </Form>
@@ -203,15 +252,20 @@ export default function CustomizedTables() {
                             <Form className='mt-8'>
                                 <Form.Group controlId="formBasicProjectName">
                                     <Form.Label>Project Name</Form.Label>
-                                    <Form.Control onChange={(e)=> settaskName(e.target.value)} type="TaskName" placeholder="Task Name" /> 
+                                    <Form.Control onChange={(e)=> setprojectName(e.target.value)} type="TaskName" placeholder={editData.projectName}/>
+                                </Form.Group>
+                                  
+                                <Form.Group controlId="formBasicDescription">
+                                    <Form.Label>Description</Form.Label>
+                                    <Form.Control onChange={(e)=> setDescription(e.target.value)} as="textarea" rows="3" placeholder={editData.description} />
                                 </Form.Group>
 
                                 <Form.Group controlId="formNumberOfMembers">
-                                    <Form.Label>Number of Members</Form.Label>
-                                    <Form.Control onChange={(e)=> setProjectName(e.target.value)} type="PrpjectName" placeholder="ProjectName" /> 
-                                </Form.Group>
+                                    <Form.Label>Status</Form.Label>
+                                    <Form.Control onChange={(e)=> setStatus(e.target.value)} type="PrpjectName" placeholder={editData.projectStatus}/>                               
+                                     </Form.Group>
 
-                                <Form.Group controlId="formBasicDescription">
+                                {/* <Form.Group controlId="formBasicDescription">
                                     <Form.Label>Date of Creation</Form.Label>
                                     <form className={classes.container} noValidate>
                                     <TextField
@@ -223,14 +277,9 @@ export default function CustomizedTables() {
                                         }}
                                     />
                                     </form>
-                                </Form.Group>
+                                </Form.Group> */}
 
-                                <Form.Group controlId="formBasicDescription">
-                                    <Form.Label>Description</Form.Label>
-                                    <Form.Control as="textarea" rows="3" />
-                                </Form.Group>
-
-                                <Button onClick={EditProjectDeatils} variant="primary" type="submit">
+                                <Button onClick={SubmitEditedProject} variant="primary" type="submit">
                                   Edit
                                 </Button>
                             </Form>
@@ -244,25 +293,23 @@ export default function CustomizedTables() {
         <TableHead>
           <TableRow>
             <StyledTableCell>Project Name</StyledTableCell>
-            <StyledTableCell align="center">Members Count</StyledTableCell>
-            <StyledTableCell align="center">Date of Creation</StyledTableCell>
-            <StyledTableCell align="center">Pending Tasks</StyledTableCell>
-            <StyledTableCell align="center">Completed Tasks</StyledTableCell>
-            <StyledTableCell align="center">Actions</StyledTableCell>
+            <StyledTableCell align="center">Description</StyledTableCell>
+            <StyledTableCell align="center">Start Date</StyledTableCell>
+            <StyledTableCell align="center">Status</StyledTableCell>
+            <StyledTableCell align="center">Action</StyledTableCell>
           </TableRow>
         </TableHead>
         <TableBody>
-          {rows.map(row => (
-            <StyledTableRow key={row.name}>
+          {projects.map(row => (
+            <StyledTableRow key={row._id}>
               <StyledTableCell component="th" scope="row">
-                {row.ProjectName}
+                {row.projectName}
               </StyledTableCell>
-              <StyledTableCell align="center">{row.MembersCount}</StyledTableCell>
-              <StyledTableCell align="center">{row.DOC}</StyledTableCell>
-              <StyledTableCell align="center">{row.PendingTasks}</StyledTableCell>
-              <StyledTableCell align="center">{row.CompletedTasks}</StyledTableCell>
+              <StyledTableCell align="center">{row.description}</StyledTableCell>
+              <StyledTableCell align="center">{row.startDate}</StyledTableCell>
+              <StyledTableCell align="center">{row.projectStatus}</StyledTableCell>
               <StyledTableCell align="center">
-              <Link className='btn btn-outline-primary mr-4' onClick={()=> setEdit(true)} >Edit</Link>                      
+              <Link className='btn btn-outline-primary mr-4' onClick={()=> EditProject(row)} >Edit</Link>                      
                         <button className='btn btn-danger'  >Delete</button>
               </StyledTableCell>
             </StyledTableRow>

@@ -4,8 +4,6 @@ const InputField = (props)=>{
 	const getInput = props.getInputHere;
 	const formik = props.formHandlemik;
 	const displayName = props.DisplayName;
-	
-	console.log(displayName)
 		return(
 
 			<div className="form-group row">
